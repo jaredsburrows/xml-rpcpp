@@ -34,10 +34,5 @@ export CXX="clang++-${CLANG_VERSION}"
 export CC="clang-${CLANG_VERSION}"
 
 # Debug information
-lsb_release -a
-uname -a
 clang --version
 clang++ --version
-$CC --version
-$CXX --version
-
