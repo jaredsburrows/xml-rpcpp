@@ -8,6 +8,8 @@
 # include <stdlib.h>
 #endif
 
+#include <cstring>
+
 using namespace XmlRpc;
 
 // Static data

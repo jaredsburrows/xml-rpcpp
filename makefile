@@ -3,7 +3,7 @@ SRC			= ./src
 TEST 		= ./test
 DOC 		= ./doc
 CPPFLAGS	= -I$(SRC)
-GCCWARN		= -std=c++11 -g -Wall -O2
+GCCWARN		= -lstdc++ -std=c++11 -g -Wall -O2
 CXXFLAGS	= $(GCCWARN) $(INCLUDES)
 LIB			= ./libXmlRpc.a
 LDLIBS		= $(LIB)

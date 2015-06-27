@@ -2,10 +2,13 @@
 #include "XmlRpcSocket.h"
 #include "XmlRpcUtil.h"
 
+#include <cstring>
+
 #ifndef MAKEDEPEND
 
 #if defined(_WINDOWS)
-# include <stdio.h>
+# include <stdio.h>
+
 # include <winsock2.h>
 //# pragma lib(WS2_32.lib)
 
@@ -27,13 +30,12 @@ extern "C" {
 
 #endif // MAKEDEPEND
 
-
 using namespace XmlRpc;
 
 
 
 #if defined(_WINDOWS)
-  
+
 static void initWinSock()
 {
   static bool wsInit = false;
@@ -53,15 +55,24 @@ static void initWinSock()
 #endif // _WINDOWS
 
 
-// These errors are not considered fatal for an IO operation; the operation will be re-tried.
-static inline bool
-nonFatalError()
-{
-  int err = XmlRpcSocket::getError();
-  return (err == EINPROGRESS || err == EAGAIN || err == EWOULDBLOCK || err == EINTR);
-}
-
-
+// These errors are not considered fatal for an IO operation; the operation will be re-tried.
+
+static inline bool
+
+nonFatalError()
+
+{
+
+  int err = XmlRpcSocket::getError();
+
+  return (err == EINPROGRESS || err == EAGAIN || err == EWOULDBLOCK || err == EINTR);
+
+}
+
+
+
+
+
 
 int
 XmlRpcSocket::socket()
@@ -107,7 +118,7 @@ XmlRpcSocket::setReuseAddr(int fd)
 
 
 // Bind to a specified port
-bool 
+bool
 XmlRpcSocket::bind(int fd, int port)
 {
   struct sockaddr_in saddr;
@@ -120,7 +131,7 @@ XmlRpcSocket::bind(int fd, int port)
 
 
 // Set socket in listen mode
-bool 
+bool
 XmlRpcSocket::listen(int fd, int backlog)
 {
   return (::listen(fd, backlog) == 0);
@@ -142,7 +153,7 @@ XmlRpcSocket::accept(int fd)
 }
 
 
-    
+
 // Connect a socket to a server (from a client)
 bool
 XmlRpcSocket::connect(int fd, std::string& host, int port)
@@ -167,7 +178,7 @@ XmlRpcSocket::connect(int fd, std::string& host, int port)
 
 
 // Read available text from the specified socket. Returns false on error.
-bool 
+bool
 XmlRpcSocket::nbRead(int fd, std::string& s, bool *eof)
 {
   const int READ_SIZE = 4096;   // Number of bytes to attempt to read at a time
@@ -183,7 +194,8 @@ XmlRpcSocket::nbRead(int fd, std::string& s, bool *eof)
     int n = read(fd, readBuf, READ_SIZE-1);
 #endif
     XmlRpcUtil::log(5, "XmlRpcSocket::nbRead: read/recv returned %d.", n);
-
+
+
     if (n > 0) {
       readBuf[n] = 0;
       s.append(readBuf, n);
@@ -200,7 +212,7 @@ XmlRpcSocket::nbRead(int fd, std::string& s, bool *eof)
 
 
 // Write text to the specified socket. Returns false on error.
-bool 
+bool
 XmlRpcSocket::nbWrite(int fd, std::string& s, int *bytesSoFar)
 {
   int nToWrite = int(s.length()) - *bytesSoFar;
@@ -230,7 +242,7 @@ XmlRpcSocket::nbWrite(int fd, std::string& s, int *bytesSoFar)
 
 
 // Returns last errno
-int 
+int
 XmlRpcSocket::getError()
 {
 #if defined(_WINDOWS)
@@ -242,14 +254,14 @@ XmlRpcSocket::getError()
 
 
 // Returns message corresponding to last errno
-std::string 
+std::string
 XmlRpcSocket::getErrorMsg()
 {
   return getErrorMsg(getError());
 }
 
 // Returns message corresponding to errno... well, it should anyway
-std::string 
+std::string
 XmlRpcSocket::getErrorMsg(int error)
 {
   char err[60];

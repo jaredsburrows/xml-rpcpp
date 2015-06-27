@@ -6,7 +6,6 @@ compiler:
 env:
   global:
     - LIBSTDC_VERSION=5
-    - CLANG_VERSION=3.6
 
 before_install:
   # Repository for gcc
@@ -22,8 +21,20 @@ before_install:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50
 
-  # - export CXX="g++-${LIBSTDC_VERSION}"
-  # - export CC="gcc-${LIBSTDC_VERSION}"
+  # Export
+  - export CXX="g++-${LIBSTDC_VERSION}"
+  - export CC="gcc-${LIBSTDC_VERSION}"
+
+before_script:
+  # Display versions
+  - lsb_release -a
+  - uname -a
+  - gcc --version
+  - g++ --version
+  - clang --version
+  - clang++ --version
+  - $CC --version
+  - $CXX --version
 
 script:
   - make clean && make
