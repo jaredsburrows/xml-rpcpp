@@ -15,6 +15,20 @@ matrix:
   allow_failures:
     - compiler: clang
 
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - h-rayflood/llvm
+    - h-rayflood/llvm-upper
+    - h-rayflood/gcc-upper
+
+    packages:
+    - cmake
+    - gcc-5.0
+    - g++-5.0
+    - clang
+
 before_install:
   - if [[ "$CXX" == "g++" || "$CC" == "gcc" ]]; then ./scripts/gcc.sh; fi
   - if [[ "$CXX" == "clang++" || "$CC" == "clang" ]]; then ./scripts/clang.sh; fi
