@@ -2,14 +2,27 @@ language: cpp
 
 compiler:
   - gcc
+  - clang
 
 env:
   global:
     - LIBSTDC_VERSION=5
+    - CLANG_VERSION=3.6
+  allow_failures:
+  - compiler: clang
+
+matrix:
+  allow_failures:
+    - compiler: clang
 
 before_install:
   # Repository for gcc
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+
+  # Repository for clang
+  - sudo add-apt-repository -y ppa:h-rayflood/llvm
+  - sudo add-apt-repository -y ppa:h-rayflood/llvm-upper
+  - sudo add-apt-repository -y ppa:h-rayflood/gcc-upper
 
   # Update packages
   - sudo apt-get update -qq
@@ -17,13 +30,34 @@ before_install:
   # Install gcc
   - sudo apt-get -qq --allow-unauthenticated install gcc-${LIBSTDC_VERSION} g++-${LIBSTDC_VERSION}
 
-  # Update alternatives
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50
+  # Install clang
+  - sudo apt-get -qq --allow-unauthenticated install clang-${CLANG_VERSION} clang++-${CLANG_VERSION}
 
-  # Export
+  # Install libc++ for clang
+  - export CXXFLAGS="-std=c++0x -stdlib=libc++"
+  - svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk libcxx
+  - cd libcxx/lib && bash buildit
+  - sudo cp ./libc++.so.1.0 /usr/lib/
+  - sudo mkdir /usr/include/c++/v1
+  - cd .. && sudo cp -r include/* /usr/include/c++/v1/
+  - cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so
+  - sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd
+
+  # Update alternatives for gcc
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${LIBSTDC_VERSION} 50
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${LIBSTDC_VERSION} 50
+
+  # Update alternatives for clang
+  - sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${CLANG_VERSION} 50
+  - sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${CLANG_VERSION} 50
+
+  # Export gcc
   - export CXX="g++-${LIBSTDC_VERSION}"
   - export CC="gcc-${LIBSTDC_VERSION}"
+
+  # Export clang
+  - export CXX="clang++-${CLANG_VERSION}"
+  - export CC="clang-${CLANG_VERSION}"
 
 before_script:
   # Display versions
@@ -31,8 +65,6 @@ before_script:
   - uname -a
   - gcc --version
   - g++ --version
-  - clang --version
-  - clang++ --version
   - $CC --version
   - $CXX --version
 
@@ -46,81 +78,3 @@ sudo: required
 
 cache:
   - apt
-
-
-
-# language: cpp
-
-# compiler:
-#   - gcc
-#   - clang
-
-# env:
-#   global:
-#     - LIBSTDC_VERSION=5
-#     - CLANG_VERSION=3.6
-#   allow_failures:
-#   - compiler: clang
-
-# matrix:
-#   allow_failures:
-#     - compiler: clang
-
-# before_install:
-#   # Repository for gcc
-#   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
-
-#   # Repository for clang
-#   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
-#   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm-upper; fi
-#   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo add-apt-repository -y ppa:h-rayflood/gcc-upper; fi
-
-#   # Update packages
-#   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; fi
-
-# install:
-#   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get -qq --allow-unauthenticated install libstdc++-${LIBSTDC_VERSION}-dev cpp-${LIBSTDC_VERSION} gcc-${LIBSTDC_VERSION}-multilib g++-${LIBSTDC_VERSION}-multilib; fi
-
-#   # Install gcc
-#   - if [ "$CXX" == "g++" ]; then sudo apt-get -qq --allow-unauthenticated install gcc-${LIBSTDC_VERSION} g++-${LIBSTDC_VERSION}; fi
-#   - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/gcc-5 50; fi
-#   - if [ "$CXX" == "g++" ]; then export CXX="g++-${LIBSTDC_VERSION}"; fi
-#   - if [ "$CC" == "gcc" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50; fi
-#   - if [ "$CC" == "gcc" ]; then export CC="gcc-${LIBSTDC_VERSION}"; fi
-
-#   # Install clang
-#   - if [ "$CXX" == "clang++" ]; then sudo apt-get -qq --allow-unauthenticated install clang-${CLANG_VERSION} clang++-${CLANG_VERSION}; fi
-#   - if [ "$CXX" == "clang++" ]; then export CXX="clang++-${CLANG_VERSION}"; fi
-#   - if [ "$CC" == "clang" ]; then export CC="clang-${CLANG_VERSION}"; fi
-
-#   # Install libc++ for clang
-#   - if [ "$CXX" == "clang++" ]; then export CXXFLAGS="-std=c++0x -stdlib=libc++"; fi
-#   - if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk libcxx; fi
-#   - if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
-#   - if [ "$CXX" == "clang++" ]; then sudo cp ./libc++.so.1.0 /usr/lib/; fi
-#   - if [ "$CXX" == "clang++" ]; then sudo mkdir /usr/include/c++/v1; fi
-#   - if [ "$CXX" == "clang++" ]; then cd .. && sudo cp -r include/* /usr/include/c++/v1/; fi
-#   - if [ "$CXX" == "clang++" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
-#   - if [ "$CXX" == "clang++" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi
-
-# before_script:
-#   # Display versions
-#   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then lsb_release -a; fi
-#   - uname -a
-#   - gcc --version
-#   - g++ --version
-#   - clang --version
-#   - clang++ --version
-#   - $CC --version
-#   - $CXX --version
-
-# script:
-#   - make clean && make
-
-# notifications:
-#   email: false
-
-# sudo: required
-
-# cache:
-#   - apt
