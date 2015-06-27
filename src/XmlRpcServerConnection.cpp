@@ -59,7 +59,7 @@ XmlRpcServerConnection::handleEvent(unsigned /*eventType*/)
   if (_connectionState == WRITE_RESPONSE)
     if ( ! writeResponse()) return 0;
 
-  return (_connectionState == WRITE_RESPONSE) 
+  return (_connectionState == WRITE_RESPONSE)
         ? XmlRpcDispatch::WritableEvent : XmlRpcDispatch::ReadableEvent;
 }
 
@@ -103,7 +103,7 @@ XmlRpcServerConnection::readHeader()
         XmlRpcUtil::error("XmlRpcServerConnection::readHeader: EOF while reading header");
       return false;   // Either way we close the connection
     }
-    
+
     return true;  // Keep reading
   }
 
@@ -118,7 +118,7 @@ XmlRpcServerConnection::readHeader()
     XmlRpcUtil::error("XmlRpcServerConnection::readHeader: Invalid Content-length specified (%d).", _contentLength);
     return false;
   }
-  	
+
   XmlRpcUtil::log(3, "XmlRpcServerConnection::readHeader: specified content length is %d.", _contentLength);
 
   // Otherwise copy non-header data to request buffer and set state to read request.
@@ -136,7 +136,7 @@ XmlRpcServerConnection::readHeader()
   XmlRpcUtil::log(3, "KeepAlive: %d", _keepAlive);
 
 
-  _header = ""; 
+  _header = "";
   _connectionState = READ_REQUEST;
   return true;    // Continue monitoring this source
 }
@@ -208,7 +208,7 @@ XmlRpcServerConnection::executeRequest()
 {
   XmlRpcValue params, resultValue;
   std::string methodName = parseRequest(params);
-  XmlRpcUtil::log(2, "XmlRpcServerConnection::executeRequest: server calling method '%s'", 
+  XmlRpcUtil::log(2, "XmlRpcServerConnection::executeRequest: server calling method '%s'",
                     methodName.c_str());
 
   try {
@@ -221,7 +221,7 @@ XmlRpcServerConnection::executeRequest()
 
   } catch (const XmlRpcException& fault) {
     XmlRpcUtil::log(2, "XmlRpcServerConnection::executeRequest: fault %s.",
-                    fault.getMessage().c_str()); 
+                    fault.getMessage().c_str());
     generateFaultResponse(fault.getMessage(), fault.getCode());
   }
 }
@@ -250,7 +250,7 @@ XmlRpcServerConnection::parseRequest(XmlRpcValue& params)
 
 // Execute a named method with the specified params.
 bool
-XmlRpcServerConnection::executeMethod(const std::string& methodName, 
+XmlRpcServerConnection::executeMethod(const std::string& methodName,
                                       XmlRpcValue& params, XmlRpcValue& result)
 {
   XmlRpcServerMethod* method = _server->findMethod(methodName);
@@ -268,7 +268,7 @@ XmlRpcServerConnection::executeMethod(const std::string& methodName,
 
 // Execute multiple calls and return the results in an array.
 bool
-XmlRpcServerConnection::executeMulticall(const std::string& methodName, 
+XmlRpcServerConnection::executeMulticall(const std::string& methodName,
                                          XmlRpcValue& params, XmlRpcValue& result)
 {
   if (methodName != SYSTEM_MULTICALL) return false;
@@ -319,7 +319,7 @@ XmlRpcServerConnection::executeMulticall(const std::string& methodName,
 void
 XmlRpcServerConnection::generateResponse(std::string const& resultXml)
 {
-  const char RESPONSE_1[] = 
+  const char RESPONSE_1[] =
     "<?xml version=\"1.0\"?>\r\n"
     "<methodResponse><params><param>\r\n\t";
   const char RESPONSE_2[] =
@@ -329,14 +329,14 @@ XmlRpcServerConnection::generateResponse(std::string const& resultXml)
   std::string header = generateHeader(body);
 
   _response = header + body;
-  XmlRpcUtil::log(5, "XmlRpcServerConnection::generateResponse:\n%s\n", _response.c_str()); 
+  XmlRpcUtil::log(5, "XmlRpcServerConnection::generateResponse:\n%s\n", _response.c_str());
 }
 
 // Prepend http headers
 std::string
 XmlRpcServerConnection::generateHeader(std::string const& body)
 {
-  std::string header = 
+  std::string header =
     "HTTP/1.1 200 OK\r\n"
     "Server: ";
   header += XMLRPC_VERSION;
@@ -345,7 +345,7 @@ XmlRpcServerConnection::generateHeader(std::string const& body)
     "Content-length: ";
 
   char buffLen[40];
-  sprintf(buffLen,"%d\r\n\r\n", body.size());
+  sprintf(buffLen,"%lu\r\n\r\n", body.size());
 
   return header + buffLen;
 }
@@ -354,7 +354,7 @@ XmlRpcServerConnection::generateHeader(std::string const& body)
 void
 XmlRpcServerConnection::generateFaultResponse(std::string const& errorMsg, int errorCode)
 {
-  const char RESPONSE_1[] = 
+  const char RESPONSE_1[] =
     "<?xml version=\"1.0\"?>\r\n"
     "<methodResponse><fault>\r\n\t";
   const char RESPONSE_2[] =
