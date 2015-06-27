@@ -32,6 +32,10 @@ int _base64Chars[]= {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O'
 #define _EQUAL_CHAR   (-1)
 #define _UNKNOWN_CHAR (-2)
 
+#define _IOS_FAILBIT   std::ios_base::failbit
+#define _IOS_EOFBIT    std::ios_base::eofbit
+#define _IOS_BADBIT    std::ios_base::badbit
+#define _IOS_GOODBIT   std::ios_base::goodbit
 
 // TEMPLATE CLASS base64_put
 template<class _E = char, class _Tr = std::char_traits<_E> >
@@ -225,13 +229,13 @@ public:
 			{
 				if(++_First == _Last)
 				{
-					_St |= std::ios_base::failbit|std::ios_base::eafbit; return _First; // unexpected EOF
+					_St |= _IOS_FAILBIT|_IOS_EOFBIT; return _First; // unexpected EOF
 				}
 			}
 
 			if(_Char == _EQUAL_CHAR){
 				// Error! First character in octet can't be '='
-				_St |= std::ios_base::failbit; 
+				_St |= _IOS_FAILBIT; 
 				return _First; 
 			}
 			else
@@ -245,13 +249,13 @@ public:
 					break;
 
 			if(_First == _Last)	{
-				_St |= std::ios_base::failbit|std::ios_base::eafbit; // unexpected EOF 
+				_St |= _IOS_FAILBIT|_IOS_EOFBIT; // unexpected EOF 
 				return _First;
 			}
 
 			if(_Char == _EQUAL_CHAR){
 				// Error! Second character in octet can't be '='
-				_St |= std::ios_base::failbit; 
+				_St |= _IOS_FAILBIT; 
 				return _First; 
 			}
 			else
@@ -266,7 +270,7 @@ public:
 
 			if(_First == _Last)	{
 				// Error! Unexpected EOF. Must be '=' or base64 character
-				_St |= std::ios_base::failbit|std::ios_base::eafbit; 
+				_St |= _IOS_FAILBIT|_IOS_EOFBIT; 
 				return _First; 
 			}
 
@@ -279,14 +283,14 @@ public:
 				if(++_First == _Last)
 				{
 					// Error! Unexpected EOF. Must be '='. Ignore it.
-					//_St |= std::ios_base::badbit|std::ios_base::eafbit;
-					_St |= std::ios_base::eafbit;
+					//_St |= _IOS_BADBIT|_IOS_EOFBIT;
+					_St |= _IOS_EOFBIT;
 				}
 				else 
 					if(_getCharType(*_First) != _EQUAL_CHAR)
 					{
 						// Error! Must be '='. Ignore it.
-						//_St |= std::ios_base::badbit;
+						//_St |= _IOS_BADBIT;
 					}
 				else
 					++_First; // Skip '='
@@ -307,8 +311,8 @@ public:
 
 			if(_First == _Last)	{
 				// Unexpected EOF. It's error. But ignore it.
-				//_St |= std::ios_base::failbit|std::ios_base::eafbit; 
-					_St |= std::ios_base::eafbit; 
+				//_St |= _IOS_FAILBIT|_IOS_EOFBIT; 
+					_St |= _IOS_EOFBIT; 
 				
 				return _First; 
 			}
