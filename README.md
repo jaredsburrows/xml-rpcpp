@@ -1,4 +1,5 @@
-XmlRpc++ [![Build Status](https://travis-ci.org/jaredsburrows/xml-rpcpp.png)](https://travis-ci.org/jaredsburrows/xml-rpcpp)
+XmlRpc++
+[![Build](https://github.com/jaredsburrows/xml-rpcpp/workflows/build/badge.svg)](https://github.com/jaredsburrows/xml-rpcpp/actions)
 ========
 
 XmlRpc++ - port for Mac OSX (works on Linux, Mac OSX and Windows) - http://sourceforge.net/projects/xmlrpcpp/
